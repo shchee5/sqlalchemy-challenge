@@ -90,11 +90,14 @@ def temp_start(start):
 def temp_dates(start,end):
     session = Session(engine)
     
+    start_date = str(dt.datetime.strptime(start,'%Y-%m-%d').date())
+    end_date = str(dt.datetime.strptime(end,'%Y-%m-%d').date())
+
     start_end_temp = session\
             .query(func.min(Measurement.tobs),
             func.avg(Measurement.tobs),
             func.max(Measurement.tobs)).\
-            filter(Measurement.date >= start, Measurement.date <= end).all()
+            filter(Measurement.date >= start_date, Measurement.date <= end_date).all()
     
     session.close()
     
