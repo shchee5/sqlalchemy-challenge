@@ -1,4 +1,5 @@
 import numpy as np
+import datetime as dt
 
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
@@ -61,7 +62,8 @@ def stations():
 def temperature():
     session = Session(engine)
     
-    active_station_temp = session.query(Measurement.date,Measurement.tobs,Measurement.station).\
+    active_station_temp = session\
+        .query(Measurement.date,Measurement.tobs,Measurement.station).\
         filter(Measurement.date > '2016-08-22',Measurement.station == 'USC00519281').all()    
    
     session.close()
@@ -72,8 +74,13 @@ def temperature():
 def temp_start(start):
     session = Session(engine)
 
-    start_temp = session.query(Measurement.date,func.min(Measurement.tobs),func.avg(Measurement.tobs),func.max(Measurement.tobs)).\
-            filter(Measurement.date >= start).all()
+    start_date = str(dt.datetime.strptime(start,'%Y-%m-%d').date())
+
+    start_temp = session\
+            .query(func.min(Measurement.tobs),
+            func.avg(Measurement.tobs),
+            func.max(Measurement.tobs)).\
+            filter(Measurement.date >= start_date).all()
     
     session.close()
 
@@ -83,9 +90,12 @@ def temp_start(start):
 def temp_dates(start,end):
     session = Session(engine)
     
-    start_end_temp = session.query(Measurement.date,func.min(Measurement.tobs),func.avg(Measurement.tobs),func.max(Measurement.tobs)).\
+    start_end_temp = session\
+            .query(func.min(Measurement.tobs),
+            func.avg(Measurement.tobs),
+            func.max(Measurement.tobs)).\
             filter(Measurement.date >= start, Measurement.date <= end).all()
-   
+    
     session.close()
     
     return jsonify(start_end_temp)
